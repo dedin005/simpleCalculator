@@ -114,12 +114,13 @@ class Calculator():
     # numerical
 
     def decimal(self):
-        if self.c and not self.d:
-            self.c = False
-            self.window['output'].update('')
         if self.d:
             return
         self.d = True
+        if self.c:
+            self.c = False
+            self.window['output'].update('0.')
+            return
         self.update('.')
 
     def percent(self):

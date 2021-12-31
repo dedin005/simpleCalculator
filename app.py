@@ -130,8 +130,11 @@ class Calculator():
 
     def negate(self):
         a = self.window['output'].get()
+        a = float(a)
+        if a == float(int(a)):
+            a = int(a)
         self.window['output'].update('')
-        self.update(-float(a))
+        self.update(-a)
 
     # calculations
 

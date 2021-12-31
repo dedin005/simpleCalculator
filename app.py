@@ -6,7 +6,7 @@ class Calculator():
     def __init__(self):
         self.layout = [
 
-                       [sg.Text(size=(25,1),key='output')],
+                       [sg.Text(size=(25,1), justification='right', key='output')],
                        [sg.Button('AC'),sg.Button('+/-'),sg.Button('%'),sg.Button('/')],
                        [sg.Button('7'),sg.Button('8'),sg.Button('9'),sg.Button('X')],
                        [sg.Button('4'),sg.Button('5'),sg.Button('6'),sg.Button('-')],
@@ -19,6 +19,8 @@ class Calculator():
         self.d = False
         self.later = None
         self.save = 0
+        self.c = False
+        self.wasUpdated = False
 
         self.buttons = defaultdict(None)
         self.buttons['AC'] = self.clear 
@@ -51,16 +53,19 @@ class Calculator():
 
             params = len(signature(self.func).parameters)
             if params == 1:
+                if self.c:
+                    self.c = False
+                    self.window['output'].update('')
                 ret = self.func(event)
                 if ret != None:
                     self.window['output'].update('')
                     self.update(ret)
+
             elif params == 2:
                 self.run()
-                pass
+
             else:
                 self.func()
-                pass
 
             self.prev = self.func
 
@@ -84,9 +89,12 @@ class Calculator():
 
     # doesn't work
     def result(self):
-        if self.later != None:
+        self.c = True
+        if self.later != None and self.wasUpdated:
             v = self.later(float(self.save), float(self.window['output'].get()))
             self.clear()
+            if v == float(int(v)):
+                v = int(v)
             self.update(v)
             self.later = None
 
@@ -106,6 +114,9 @@ class Calculator():
     # numerical
 
     def decimal(self):
+        if self.c and not self.d:
+            self.c = False
+            self.window['output'].update('')
         if self.d:
             return
         self.d = True
@@ -124,11 +135,12 @@ class Calculator():
     # calculations
 
     def run(self):
+        self.wasUpdated = True
         if self.later != None:
             self.func(float(self.save), float(self.window['output'].get()))
         self.later = self.func
         self.save = float(self.window['output'].get())
-        self.clear()
+        self.window['output'].update('')
 
     def multiply(self, a, b):
         return a*b
